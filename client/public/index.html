@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flowbase | User Data Flow</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background-color: #007bff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      padding: 8px 15px;
+      border-radius: 3px;
+      color: #ffffff;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .navbar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .home { background-color: #1e90ff; }
+    .youtube { background-color: #ff0000; }
+    .courses { background-color: #ff6347; }
+    .telegram { background-color: #0088cc; }
+    .instagram { background-color: #833ab4; }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    h2 {
+      color: #555;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .form-container {
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input, .form-group select {
+      width: calc(100% - 20px);
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-group button {
+      width: 100%;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .form-group button:hover {
+      background-color: #218838;
+    }
+
+    .user-list-container {
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    li:hover {
+      background-color: #f9f9f9;
+    }
+
+    .buttons-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .edit, .delete {
+      background-color: transparent;
+      color: #333;
+      border: 2px solid;
+      border-radius: 3px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .edit {
+      border-color: #ffc107;
+      color: #ffc107;
+    }
+
+    .delete {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+
+    .edit:hover {
+      background-color: #ffc107;
+      color: #fff;
+    }
+
+    .delete:hover {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+  </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Flowbase home">
+      <span class="brand-mark">F</span>
+      <span>flowbase<span class="brand-period">.</span></span>
+    </a>
+    <div class="topbar-meta">
+      <span class="environment-tag"><span class="environment-dot"></span> LOCAL ENVIRONMENT</span>
+      <span class="connection-status" id="connectionStatus" data-state="checking">
+        <span class="status-dot"></span><span id="connectionLabel">Checking API</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow"><span class="eyebrow-line"></span> FULL-STACK DATA FLOW</p>
+        <h1>Every record has a journey.</h1>
+        <p class="hero-copy">Add a user and follow the request from your browser, through Express, all the way to MySQL.</p>
+      </div>
+      <div class="hero-badge"><span class="pulse-dot"></span> LIVE REQUEST TRACE</div>
+    </section>
+
+    <section class="metrics" aria-label="Application overview">
+      <div class="metric-card">
+        <span class="metric-label">DATABASE RECORDS</span>
+        <strong class="metric-value" id="userCount">--</strong>
+        <span class="metric-footnote">users currently loaded</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">API ENDPOINT</span>
+        <strong class="metric-code">POST <span>/api/users</span></strong>
+        <span class="metric-footnote">Express · port 5000</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">DATABASE TARGET</span>
+        <strong class="metric-code">test_db<span>.users</span></strong>
+        <span class="metric-footnote">MySQL · parameterized insert</span>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <article class="panel form-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">01 / CREATE</p>
+            <h2>Send a new user</h2>
+          </div>
+          <span class="method-pill">POST</span>
+        </div>
+        <p class="panel-description">Enter a record to send it through the API and save it to the database.</p>
+
+        <form id="addUserForm">
+          <div class="form-field">
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Alex Morgan" autocomplete="name" required>
+          </div>
+          <div class="form-field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="alex@example.com" autocomplete="email" required>
+          </div>
+          <div class="form-field">
+            <label for="role">Access role</label>
+            <select id="role" name="role" required>
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" id="submitButton" class="submit-button">
+            <span id="submitLabel">Send record</span><span class="button-arrow" aria-hidden="true">→</span>
+          </button>
+          <p class="form-message" id="formMessage" role="status" aria-live="polite">Your data stays visible in the trace below.</p>
+        </form>
+      </article>
+
+      <article class="panel trace-panel" aria-live="polite">
+        <div class="panel-heading trace-heading">
+          <div>
+            <p class="eyebrow">02 / REQUEST TRACE</p>
+            <h2>Follow the data</h2>
+          </div>
+          <span class="trace-live"><span class="pulse-dot"></span> LIVE</span>
+        </div>
+        <p class="panel-description">Each stage updates from the request and its response.</p>
+
+        <ol class="flow-steps">
+          <li class="flow-step" data-flow-step="browser" data-state="idle">
+            <span class="step-index">01</span>
+            <span class="step-copy"><strong>Browser payload</strong><small>Form values → JSON body</small></span>
+            <span class="step-state">READY</span>
+          </li>
+          <li class="flow-step" data-flow-step="api" data-state="idle">
+            <span class="step-index">02</span>
+            <span class="step-copy"><strong>Express API</strong><small>POST /api/users</small></span>
+            <span class="step-state">WAITING</span>
+          </li>
+          <li class="flow-step" data-flow-step="database" data-state="idle">
+            <span class="step-index">03</span>
+            <span class="step-copy"><strong>MySQL insert</strong><small>test_db.users</small></span>
+            <span class="step-state">WAITING</span>
+          </li>
+          <li class="flow-step" data-flow-step="response" data-state="idle">
+            <span class="step-index">04</span>
+            <span class="step-copy"><strong>API response</strong><small>201 Created + record ID</small></span>
+            <span class="step-state">WAITING</span>
+          </li>
+        </ol>
+
+        <div class="trace-detail">
+          <div class="trace-detail-heading"><span>REQUEST BODY</span><span class="trace-language">JSON</span></div>
+          <pre id="flowPayload" class="code-block"><code>// Submit the form to inspect its JSON payload.</code></pre>
+        </div>
+        <div class="sql-detail">
+          <div class="trace-detail-heading"><span>PARAMETERIZED SQL</span><span class="trace-language">MYSQL</span></div>
+          <pre class="code-block sql-block"><code>INSERT INTO users (name, email, role)
+VALUES (?, ?, ?)</code></pre>
+          <p class="sql-params">Values: <code id="sqlParameters">[name, email, role]</code></p>
+        </div>
+        <div class="trace-result" id="flowMessage" data-state="idle">Submit a user to start tracing this request.</div>
+        <p class="trace-note">The API does not stream internal DB events. A successful response confirms the insert completed; errors are shown at the failing stage.</p>
+      </article>
+    </section>
+
+    <section class="panel records-panel">
+      <div class="panel-heading records-heading">
+        <div>
+          <p class="eyebrow">03 / PERSISTED DATA</p>
+          <h2>Users in the database</h2>
+        </div>
+        <span class="record-count" id="recordCount">Loading records…</span>
+      </div>
+      <ul id="userList" class="user-list" aria-live="polite"></ul>
+    </section>
+
+    <footer class="page-footer">
+      <span>FLOWBASE <span class="footer-separator">/</span> LOCAL FULL-STACK DEMO</span>
+      <span>Browser <span class="footer-arrow">→</span> Express <span class="footer-arrow">→</span> MySQL</span>
+    </footer>
+  </main>
+
+  <script src="bundle.js"></script>
+</body>
+</html>
+
